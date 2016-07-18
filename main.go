@@ -22,6 +22,10 @@ func nopFilter(s string) (bool, string) {
 	return true, s
 }
 
+func filterURL(path string) (bool, string) {
+	return true, strings.SplitN(path, "?", 2)[0]
+}
+
 // Middleware stores the prefix and the statsd client
 type Middleware struct {
 	prefix         string
@@ -39,7 +43,7 @@ func NewMiddleware(uri, prefix string) *Middleware {
 		log.Printf("No statsd server on %s", uri)
 		c = nopClient{}
 	}
-	return &Middleware{client: c, prefix: prefix, filter: nopFilter, global: true,
+	return &Middleware{client: c, prefix: prefix, filter: filterURL, global: true,
 		globalTiming:   prefix + ".request.timing",
 		globalReqCount: prefix + ".request.count",
 	}
