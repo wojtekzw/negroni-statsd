@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/codegangsta/negroni"
 	"github.com/peterbourgon/g2s"
+	"github.com/urfave/negroni"
 )
 
 const (
@@ -38,11 +38,16 @@ type Middleware struct {
 
 // NewMiddleware returns a middleware struct with a configured statsd client
 func NewMiddleware(uri, prefix string) *Middleware {
+	var c g2s.Statter
+
 	c, err := g2s.Dial("udp", uri)
 	if err != nil {
 		log.Printf("No statsd server on %s", uri)
-		c = nopClient{}
+		c = g2s.Noop()
 	}
+
+	// c = g2s.Noop()
+
 	return &Middleware{client: c, prefix: prefix, filter: filterURL, global: true,
 		globalTiming:   prefix + ".request.timing",
 		globalReqCount: prefix + ".request.count",
